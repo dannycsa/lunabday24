@@ -29,14 +29,17 @@ window.AudioManager = (() => {
     return document.getElementById(id);
   }
 
+ // ─── Marcar audio como desbloqueado (tras interacción) ───
   function unlock() {
     _unlocked = true;
     ALL_IDS.forEach(id => {
       const el = _getEl(id);
       if (el) {
-        el.volume = 0;
-        el.play().then(() => el.pause()).catch(() => {});
+        // En iPhone es mejor no darles "play" a todos a la vez
+        // Solo los preparamos bajando el volumen a cero y reseteando
+        el.pause();
         el.currentTime = 0;
+        el.volume = 0;
       }
     });
   }
@@ -51,24 +54,44 @@ window.AudioManager = (() => {
     _current = null;
   }
 
-  // ─── MÚSICA DE FONDO ───
+// ─── MÚSICA DE FONDO (Mejorada para iPhone) ───
   function play(id, { loop = true, fadeMs = 1000 } = {}) {
     if (!_unlocked) return;
     const el = _getEl(id);
     if (!el) return;
 
-    if (_current && _current !== el) _fadeOut(_current, fadeMs);
+    // DETENCIÓN AGRESIVA: Antes de tocar la nueva, 
+    // nos aseguramos de que TODO lo demás esté muerto.
+    ALL_IDS.forEach(otherId => {
+       const otherEl = _getEl(otherId);
+       if (otherEl && otherId !== id) {
+         otherEl.pause();
+         otherEl.currentTime = 0;
+       }
+    });
+
+    if (_current && _current !== el) {
+      _fadeOut(_current, 400); // Fade out rápido de la anterior
+    }
 
     el.loop = loop;
     el.volume = 0;
     el.currentTime = 0;
 
-    // Aplicar el Master Volume de config.js estrictamente
     const targetVol = BirthdayConfig.masterVolume || 0.4;
-    el.play().then(() => _fadeIn(el, targetVol, fadeMs)).catch(() => {});
+    
+    // Forzamos el play
+    const playPromise = el.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        _fadeIn(el, targetVol, fadeMs);
+      }).catch(err => {
+        console.warn('[Audio] Error en iPhone:', err);
+      });
+    }
+
     _current = el;
   }
-
   function crossfade(fromId, toId, { fadeMs = 1200 } = {}) {
     if (!_unlocked) return;
     const from = _getEl(fromId);
