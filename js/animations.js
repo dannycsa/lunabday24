@@ -153,45 +153,47 @@ Animations.startFlowers = function() {
 };
 
 /* ════════════════════════════════════════
-   CAPÍTULO 3 — Elementos Coca-Cola flotantes
+   CAPÍTULO 3 — Efervescencia y Cristal
    ════════════════════════════════════════ */
 Animations.startColaElements = function() {
   const container = document.getElementById('cola-elements');
   if (!container) return;
   container.innerHTML = '';
 
-  const ICONS = ['🥤', '🍶', '🧃', '🥤', '⭐', '🎯'];
-  const count = 8;
+  // Generamos una gran cantidad de burbujas de cristal
+  const count = 40; 
 
   for (let i = 0; i < count; i++) {
-    const el = document.createElement('div');
-    el.className = 'cola-bottle';
-    el.textContent = ICONS[i % ICONS.length];
+    const bubble = document.createElement('div');
+    bubble.className = 'css-bubble';
 
-    const leftPct  = 5 + Math.random() * 90;
-    const topPct   = 5 + Math.random() * 90;
-    const delay    = Math.random() * 4;
-    const dur      = 3 + Math.random() * 3;
-    const size     = 1.5 + Math.random() * 1.5;
+    // Tamaños variados: desde diminutas hasta burbujas más grandes
+    const size = 8 + Math.random() * 35; 
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    
+    // Distribución horizontal
+    bubble.style.left = `${-5 + Math.random() * 110}%`;
+    
+    // Velocidades variadas para que no suban en bloque
+    const dur = 4 + Math.random() * 7; 
+    bubble.style.animationDuration = `${dur}s`;
+    
+    // Retrasos para que el flujo sea continuo
+    const delay = Math.random() * 5;
+    bubble.style.animationDelay = `${delay}s`;
 
-    el.style.left             = `${leftPct}%`;
-    el.style.top              = `${topPct}%`;
-    el.style.fontSize         = `${size}rem`;
-    el.style.animationDuration  = `${dur}s`;
-    el.style.animationDelay     = `${delay}s`;
-    el.style.animationFillMode  = 'both';
-    el.style.opacity = '0';
+    // Efecto de profundidad: burbujas grandes borrosas
+    if (size > 25 && Math.random() > 0.5) {
+      bubble.style.filter = 'blur(2px)';
+      bubble.style.zIndex = '3'; // Pasan por delante de la etiqueta
+    } else {
+      bubble.style.zIndex = '1'; // Pasan por detrás
+    }
 
-    // Fade in then drift
-    setTimeout(() => {
-      el.style.opacity = '0.25';
-      el.style.animation = `colaDrift ${dur}s ease-in-out ${delay}s infinite alternate`;
-    }, 800);
-
-    container.appendChild(el);
+    container.appendChild(bubble);
   }
 };
-
 /* ════════════════════════════════════════
    CAPÍTULO 4 — Océano (Canvas)
    ════════════════════════════════════════ */

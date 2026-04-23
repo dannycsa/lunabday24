@@ -6,12 +6,12 @@ window.AudioManager = (() => {
 
   // ▼▼▼ VARIABLES PARA AJUSTAR DURANTE TUS PRUEBAS ▼▼▼
   const CONFIG_VOZ = {
-    volumenVoz: 0.5,       
+    volumenVoz: 0.7,       
 
     // Qué tanto baja la música mientras hablas. 
     // Se multiplica por el masterVolume. 
     // Ej: 0.20 = baja a un 20%, 0.50 = baja a la mitad, 0 = se silencia.
-    reduccionMusica: 0.85  
+    reduccionMusica: 0.8  
   };
   // ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
 
