@@ -7,7 +7,7 @@ window.BirthdayConfig = {
   // ─────────────────────────────────────────────────────
   // MODO DEBUG: Poner true para saltar el bloqueo horario
   // ─────────────────────────────────────────────────────
-  debugMode: true,
+  debugMode: false,
   debugForceChapter: 1,
   masterVolume: 0.4,
 
