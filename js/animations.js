@@ -153,47 +153,236 @@ Animations.startFlowers = function() {
 };
 
 /* ════════════════════════════════════════
-   CAPÍTULO 3 — Efervescencia y Cristal
+   CAPÍTULO 3 — Efervescencia Extrema y Cristal
    ════════════════════════════════════════ */
 Animations.startColaElements = function() {
-  const container = document.getElementById('cola-elements');
-  if (!container) return;
-  container.innerHTML = '';
+  const lc = document.getElementById('liquidCanvas');
+  const bc = document.getElementById('bubbleCanvas');
+  if (!lc || !bc) return;
 
-  // Generamos una gran cantidad de burbujas de cristal
-  const count = 40; 
+  const lctx = lc.getContext('2d');
+  const bctx = bc.getContext('2d');
 
-  for (let i = 0; i < count; i++) {
-    const bubble = document.createElement('div');
-    bubble.className = 'css-bubble';
+  function resize() {
+    lc.width  = bc.width  = window.innerWidth;
+    lc.height = bc.height = window.innerHeight;
+    initSurface();
+  }
 
-    // Tamaños variados: desde diminutas hasta burbujas más grandes
-    const size = 8 + Math.random() * 35; 
-    bubble.style.width = `${size}px`;
-    bubble.style.height = `${size}px`;
-    
-    // Distribución horizontal
-    bubble.style.left = `${-5 + Math.random() * 110}%`;
-    
-    // Velocidades variadas para que no suban en bloque
-    const dur = 4 + Math.random() * 7; 
-    bubble.style.animationDuration = `${dur}s`;
-    
-    // Retrasos para que el flujo sea continuo
-    const delay = Math.random() * 5;
-    bubble.style.animationDelay = `${delay}s`;
+  const N = 90;
+  let verts = [], vels = [], accs = [];
+  let fillHeight = 0;
 
-    // Efecto de profundidad: burbujas grandes borrosas
-    if (size > 25 && Math.random() > 0.5) {
-      bubble.style.filter = 'blur(2px)';
-      bubble.style.zIndex = '3'; // Pasan por delante de la etiqueta
+  const TENSION = 0.022;
+  const DAMPING = 0.935;
+  const SPREAD  = 0.16;
+
+  function initSurface() {
+    const y = lc.height || window.innerHeight;
+    for (let i = 0; i < N; i++) {
+      verts[i] = y;
+      vels[i]  = 0;
+      accs[i]  = 0;
+    }
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  function splash(x, strength) {
+    const idx = Math.round((x / lc.width) * (N - 1));
+    if (idx >= 0 && idx < N) vels[idx] -= strength;
+  }
+
+  function updateSurface() {
+    const surfY = lc.height - fillHeight;
+    for (let i = 0; i < N; i++) {
+      accs[i] = TENSION * (surfY - verts[i]);
+    }
+    const lD = new Array(N).fill(0);
+    const rD = new Array(N).fill(0);
+    for (let p = 0; p < 8; p++) {
+      for (let i = 0; i < N; i++) {
+        if (i > 0) { lD[i] = SPREAD * (verts[i] - verts[i-1]); vels[i-1] += lD[i]; }
+        if (i < N-1) { rD[i] = SPREAD * (verts[i] - verts[i+1]); vels[i+1] += rD[i]; }
+      }
+      for (let i = 0; i < N; i++) {
+        if (i > 0)   verts[i-1] += lD[i];
+        if (i < N-1) verts[i+1] += rD[i];
+      }
+    }
+    for (let i = 0; i < N; i++) {
+      vels[i] = (vels[i] + accs[i]) * DAMPING;
+      verts[i] += vels[i];
+    }
+  }
+
+  function drawLiquid() {
+    const W = lc.width, H = lc.height;
+    // Limpiamos el canvas sin dibujar nada negro de fondo
+    lctx.clearRect(0, 0, W, H);
+
+    if (fillHeight <= 0) return;
+
+    const step = W / (N - 1);
+    lctx.beginPath();
+    lctx.moveTo(0, verts[0]);
+    for (let i = 1; i < N; i++) {
+      const cx = (i - 0.5) * step;
+      const cy = (verts[i-1] + verts[i]) / 2;
+      lctx.quadraticCurveTo((i-1)*step, verts[i-1], cx, cy);
+    }
+    lctx.lineTo(W, verts[N-1]);
+    lctx.lineTo(W, H);
+    lctx.lineTo(0, H);
+    lctx.closePath();
+
+    const grad = lctx.createLinearGradient(0, H - fillHeight, 0, H);
+    grad.addColorStop(0,    'rgba(90, 25, 8, 0.97)');
+    grad.addColorStop(0.07, 'rgba(45, 12, 4, 0.99)');
+    grad.addColorStop(0.35, 'rgba(18, 5, 2, 1)');
+    grad.addColorStop(1,    'rgba(6, 1, 1, 1)');
+    lctx.fillStyle = grad;
+    lctx.fill();
+
+    lctx.beginPath();
+    lctx.moveTo(0, verts[0]);
+    for (let i = 1; i < N; i++) {
+      const cx = (i - 0.5) * step;
+      const cy = (verts[i-1] + verts[i]) / 2;
+      lctx.quadraticCurveTo((i-1)*step, verts[i-1], cx, cy);
+    }
+    lctx.lineTo(W, verts[N-1]);
+    lctx.lineTo(W, verts[N-1] + 22);
+    lctx.lineTo(0, verts[0] + 22);
+    lctx.closePath();
+    const foamGrad = lctx.createLinearGradient(0, 0, 0, 22);
+    foamGrad.addColorStop(0, 'rgba(160, 65, 18, 0.38)');
+    foamGrad.addColorStop(1, 'rgba(60, 15, 5, 0)');
+    lctx.fillStyle = foamGrad;
+    lctx.fill();
+  }
+
+  // ── BURBUJAS MEJORADAS (MÁS Y MÁS GRANDES) ──
+  const BUBBLE_COUNT = 250; // Casi el doble de burbujas
+  const bubs = [];
+
+  function resetBubble(b) {
+    b.x       = 8 + Math.random() * (bc.width - 16);
+    b.y       = bc.height + 5;
+    // Burbujas mucho más grandes
+    b.r       = 1.5 + Math.random() * 6; 
+    // Suben mucho más rápido (simulando gas real)
+    b.vy      = -(1.5 + Math.random() * 3.5); 
+    b.vx      = (Math.random() - 0.5) * 0.4;
+    b.phase   = Math.random() * Math.PI * 2;
+    // Más opacas y brillantes
+    b.opacity = 0.4 + Math.random() * 0.6; 
+    b.age     = 0;
+    b.maxAge  = 40 + Math.random() * 100;
+  }
+
+  for (let i = 0; i < BUBBLE_COUNT; i++) {
+    const b = {};
+    resetBubble(b);
+    b.y   = bc.height - Math.random() * Math.max(fillHeight, 1);
+    b.age = Math.random() * b.maxAge;
+    bubs.push(b);
+  }
+
+  function drawBubbles() {
+    const W = bc.width, H = bc.height;
+    bctx.clearRect(0, 0, W, H);
+    if (fillHeight < 8) return;
+
+    const surfY = H - fillHeight;
+
+    bubs.forEach(b => {
+      b.x   += b.vx + Math.sin(b.phase + b.age * 0.1) * 0.2;
+      b.y   += b.vy;
+      b.age++;
+
+      if (b.y < surfY + 3 || b.age > b.maxAge) {
+        if (Math.random() < 0.15) splash(b.x, 0.5 + Math.random() * 1.5);
+        resetBubble(b);
+        b.y = H - Math.random() * fillHeight * 0.92;
+        return;
+      }
+      if (b.y > H) { resetBubble(b); return; }
+
+      const fade = Math.min(1, b.age / 10);
+      bctx.save();
+      bctx.globalAlpha = b.opacity * fade;
+      bctx.beginPath();
+      bctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      bctx.strokeStyle = 'rgba(255,255,255,0.7)'; // Bordes más blancos
+      bctx.lineWidth = 1.2; // Bordes más gruesos
+      bctx.stroke();
+      
+      // Brillo intenso en la burbuja
+      bctx.beginPath();
+      bctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
+      bctx.fillStyle = 'rgba(255,255,255,0.9)';
+      bctx.fill();
+      bctx.restore();
+    });
+  }
+
+  // ── LLENADO ──
+  let raf;
+  let t = 0;
+  let filled = false;
+  const fillDur = 250; 
+  let fillFrame = 0;
+
+  const fizz = setInterval(() => {
+    if (fillHeight > 15) {
+      splash(20 + Math.random() * (lc.width - 40), 0.5 + Math.random() * 1.5);
+    }
+  }, 400); // Salpicaduras más frecuentes
+
+  function loop() {
+    t++;
+    fillFrame++;
+
+    const currentMaxFill = window.innerHeight * 0.88;
+
+    if (fillFrame <= fillDur) {
+      const p = fillFrame / fillDur;
+      const e = p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;
+      fillHeight = e * currentMaxFill;
+      
+      if (fillFrame % 10 === 0 && p < 0.92) {
+        splash(Math.random() * lc.width, 2 + Math.random() * 4);
+      }
     } else {
-      bubble.style.zIndex = '1'; // Pasan por detrás
+      fillHeight = currentMaxFill;
     }
 
-    container.appendChild(bubble);
+    if (!filled && fillFrame > fillDur * 0.6) {
+      filled = true;
+      const labelEl = document.getElementById('cola-label-el');
+      if (labelEl) {
+        setTimeout(() => labelEl.classList.add('label-visible'), 200);
+      }
+    }
+
+    updateSurface();
+    drawLiquid();
+    drawBubbles();
+
+    raf = requestAnimationFrame(loop);
   }
+
+  loop();
+
+  return () => {
+    cancelAnimationFrame(raf);
+    clearInterval(fizz);
+    window.removeEventListener('resize', resize);
+  };
 };
+
 /* ════════════════════════════════════════
    CAPÍTULO 4 — Océano (Canvas)
    ════════════════════════════════════════ */
