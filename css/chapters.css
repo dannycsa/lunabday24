@@ -1,0 +1,673 @@
+/* ═══════════════════════════════════════════════════════════
+   CHAPTERS.CSS — Estilos visuales por capítulo
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════
+   CAPÍTULO 1 — 00:00
+   Fondo: Negro elegante con gradiente
+   ═══════════════════════ */
+.chapter-1-bg {
+  background: radial-gradient(ellipse at center, #1c1427 0%, #050408 100%);
+}
+
+#confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* Detrás del texto pero sobre el fondo */
+}
+
+.ch1-center {
+  position: relative;
+  z-index: 10; /* Asegura que el texto esté por encima de los globos */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ─── TEXTO ELEGANTE CON RESPLANDOR ─── */
+.ch1-pre {
+  font-family: var(--font-sans);
+  font-size: 1.2rem;
+  letter-spacing: 0.3em;
+  color: #d8c3ce;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: fadeInText 2s ease 1s forwards;
+}
+
+.ch1-main.glow-text {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
+  color: #ffffff;
+  line-height: 1.1;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 40px rgba(255, 215, 235, 0.2);
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeInText 2s ease 1.5s forwards;
+}
+
+.ch1-years.cursive-glow {
+  font-family: var(--font-script);
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  color: #f7d6e0;
+  margin-top: 10px;
+  text-shadow: 0 0 15px rgba(247, 214, 224, 0.6);
+  opacity: 0;
+  animation: fadeInText 2s ease 2.5s forwards;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#chapter-1 .return-hint {
+  color: rgba(255,255,255,0.4);
+}
+
+/* ─── GLOBOS 3D CSS ─── */
+.elegant-balloons {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2; /* Por encima del confeti, debajo del texto */
+}
+
+.css-balloon {
+  position: absolute;
+  bottom: -150px;
+  width: 60px;
+  height: 80px;
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  opacity: 0.85;
+  box-shadow: inset -10px -10px 20px rgba(0,0,0,0.15), 
+              inset 5px 5px 15px rgba(255,255,255,0.7);
+}
+
+.css-balloon::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+}
+
+.css-balloon::after {
+  content: '';
+  position: absolute;
+  bottom: -70px;
+  left: 50%;
+  width: 1px;
+  height: 70px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+}
+
+/* ─── COLORES DE LOS GLOBOS ─── */
+.rose-gold { background: rgba(224, 169, 175, 0.7); }
+.rose-gold::before { border-bottom: 10px solid rgba(224, 169, 175, 0.9); }
+
+.pearl { background: rgba(245, 245, 245, 0.7); }
+.pearl::before { border-bottom: 10px solid rgba(245, 245, 245, 0.9); }
+
+.soft-gold { background: rgba(235, 203, 140, 0.7); }
+.soft-gold::before { border-bottom: 10px solid rgba(235, 203, 140, 0.9); }
+
+/* ─── ANIMACIÓN DE FLOTACIÓN SUAVE ─── */
+.css-balloon.b1 { left: 10%; animation: floatUp 14s ease-in-out infinite; }
+.css-balloon.b2 { left: 30%; animation: floatUp 18s ease-in-out 3s infinite; transform: scale(0.8); }
+.css-balloon.b3 { left: 55%; animation: floatUp 15s ease-in-out 1s infinite; transform: scale(1.1); }
+.css-balloon.b4 { left: 75%; animation: floatUp 17s ease-in-out 5s infinite; transform: scale(0.9); }
+.css-balloon.b5 { left: 85%; animation: floatUp 16s ease-in-out 2s infinite; }
+
+@keyframes floatUp {
+  0% { transform: translateY(100vh) rotate(-5deg); }
+  50% { transform: translateY(-20vh) rotate(5deg); }
+  100% { transform: translateY(-120vh) rotate(-5deg); }
+}
+
+/* ═══════════════════════
+   CAPÍTULO 2 — 08:00 (MAÑANA VIVA Y FLORECIENTE)
+   ═══════════════════════ */
+.chapter-2-bg {
+  background: linear-gradient(160deg, #fce8ef 0%, #f8d7e3 40%, #fde3c8 100%);
+  background-size: 200% 200%;
+  animation: morningBreeze 8s ease infinite alternate;
+}
+
+@keyframes morningBreeze {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.flowers-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* ─── ROSAS ABSTRACTAS CSS ─── */
+.css-rose {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: roseBloom 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center center;
+}
+
+/* El truco de la rosa: capas superpuestas con forma de pétalo redondeado */
+.rose-petal-layer {
+  position: absolute;
+  border-radius: 50% 15% 50% 15%; 
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.08), 0 0 10px rgba(0,0,0,0.03);
+}
+
+/* Rotamos y achicamos cada capa para formar el capullo */
+.css-rose .rose-petal-layer:nth-child(1) { width: 100%; height: 100%; transform: rotate(0deg); }
+.css-rose .rose-petal-layer:nth-child(2) { width: 75%; height: 75%; transform: rotate(55deg); }
+.css-rose .rose-petal-layer:nth-child(3) { width: 50%; height: 50%; transform: rotate(110deg); }
+.css-rose .rose-petal-layer:nth-child(4) { width: 25%; height: 25%; transform: rotate(165deg); }
+
+/* Paletas de colores pastel */
+.color-pink .rose-petal-layer { background: rgba(245, 190, 205, 0.6); }
+.color-peach .rose-petal-layer { background: rgba(253, 213, 177, 0.5); }
+.color-white .rose-petal-layer { background: rgba(255, 245, 245, 0.6); }
+
+/* Gradientes para los pétalos que caen */
+.color-pink.css-petal { background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(245, 190, 205, 0.7) 100%); }
+.color-peach.css-petal { background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(253, 213, 177, 0.7) 100%); }
+.color-white.css-petal { background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240, 230, 230, 0.5) 100%); }
+
+@keyframes roseBloom {
+  0%   { opacity: 0; transform: scale(0) rotate(-30deg); }
+  70%  { opacity: 1; transform: scale(1.05) rotate(10deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes flowerSway {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(15px, -15px) rotate(8deg); }
+}
+
+/* ─── PÉTALOS GIGANTES CAYENDO ─── */
+.css-petal {
+  position: absolute;
+  /* Esta es la forma clave de una hoja/pétalo real */
+  border-radius: 50% 0 50% 0; 
+  opacity: 0;
+  animation: giantPetalFall linear infinite;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+@keyframes giantPetalFall {
+  0% { 
+    transform: translateY(-20vh) rotate(0deg) scale(0.8) skew(0deg); 
+    opacity: 0; 
+  }
+  10% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { 
+    /* El skew le da un efecto 3D como si estuviera doblándose con el viento */
+    transform: translateY(120vh) rotate(720deg) scale(1.2) skew(15deg); 
+    opacity: 0; 
+  }
+}
+
+/* ─── CARTA (Intacta) ─── */
+.scroll-card {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(170deg, #fffaf7 0%, #fff5ee 100%);
+  border: 1px solid rgba(200,160,140,0.35);
+  border-radius: 8px;
+  padding: 36px 28px;
+  max-width: 340px;
+  width: calc(100% - 48px);
+  box-shadow:
+    0 10px 30px rgba(200,100,120,0.15),
+    0 1px 8px rgba(200,100,120,0.1),
+    inset 0 0 0 6px rgba(200,160,140,0.1);
+  animation: scrollReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both, cardFloat 6s ease-in-out 2s infinite alternate;
+}
+
+@keyframes scrollReveal {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cardFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+.scroll-inner { text-align: center; }
+
+.scroll-decoration {
+  font-size: 1.5rem;
+  color: #c4a080;
+  opacity: 0.6;
+  display: block;
+  line-height: 1;
+}
+
+.scroll-decoration.top  { margin-bottom: 16px; }
+.scroll-decoration.bottom { margin-top: 16px; }
+
+.scroll-text {
+  font-family: var(--font-body);
+  font-size: clamp(0.92rem, 3.2vw, 1.05rem);
+  font-style: italic;
+  color: #5a3f3f;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+
+#chapter-2 .return-hint {
+  color: #a07060;
+}
+
+/* ═══════════════════════
+   CAPÍTULO 3 — 12:00
+   Fondo: Blanco limpio
+   ═══════════════════════ */
+.chapter-3-bg {
+  background: #f8f8f6;
+}
+
+.cola-elements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cola-bottle {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0;
+  animation: colaDrift ease-in-out infinite alternate;
+}
+
+@keyframes colaDrift {
+  from { transform: translateY(0) rotate(-5deg); }
+  to   { transform: translateY(-12px) rotate(5deg); }
+}
+
+.cola-label {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(175deg, #cc0000 0%, #aa0000 50%, #cc0000 100%);
+  border-radius: 16px 16px 24px 24px;
+  max-width: 310px;
+  width: calc(100% - 48px);
+  box-shadow:
+    0 8px 32px rgba(180,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.15),
+    inset 0 -2px 0 rgba(0,0,0,0.2);
+  overflow: hidden;
+  animation: labelReveal 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+@keyframes labelReveal {
+  from { opacity: 0; transform: scale(0.85) rotateY(15deg); }
+  to   { opacity: 1; transform: scale(1) rotateY(0deg); }
+}
+
+.cola-label::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 15%;
+  width: 20%; height: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent, rgba(255,255,255,0.05));
+  pointer-events: none;
+}
+
+.cola-label-top {
+  background: rgba(0,0,0,0.2);
+  padding: 12px 20px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+.cola-brand-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 5vw, 1.8rem);
+  font-style: italic;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.cola-label-content {
+  padding: 20px 22px;
+}
+
+.cola-message-text {
+  font-family: var(--font-body);
+  font-size: clamp(0.9rem, 3vw, 1rem);
+  font-style: italic;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.75;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.cola-label-bottom {
+  background: rgba(0,0,0,0.18);
+  padding: 8px 20px 12px;
+  text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+.cola-tagline {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.65);
+}
+
+#chapter-3 .return-hint {
+  color: #888;
+}
+
+/* ═══════════════════════
+   CAPÍTULO 4 — 18:00
+   Fondo: Azul marino / negro
+   ═══════════════════════ */
+.chapter-4-bg {
+  background: radial-gradient(ellipse at top, #0d1b3e 0%, #050d1f 60%, #020710 100%);
+}
+
+#ocean-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ocean-text-block {
+  position: relative;
+  z-index: 2;
+  max-width: 320px;
+  width: calc(100% - 48px);
+  text-align: center;
+  animation: oceanTextAppear 1.8s ease 0.6s both;
+}
+
+@keyframes oceanTextAppear {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ocean-message {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 3.5vw, 1.15rem);
+  font-style: italic;
+  color: rgba(200,230,255,0.88);
+  line-height: 2;
+  text-shadow: 0 2px 12px rgba(0,50,100,0.6), 0 0 40px rgba(0,100,200,0.2);
+  letter-spacing: 0.04em;
+}
+
+#chapter-4 .return-hint {
+  color: rgba(150,200,255,0.5);
+}
+
+/* ═══════════════════════
+   CAPÍTULO 5 — 19:30
+   Cielo nocturno caricatura
+   ═══════════════════════ */
+.chapter-5-bg {
+  background: linear-gradient(180deg, #0e0b2e 0%, #1a1245 40%, #0f0a2a 100%);
+}
+
+#stars-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.moon {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  font-size: clamp(2.5rem, 8vw, 3.5rem);
+  filter: drop-shadow(0 0 12px rgba(255,230,80,0.6));
+  animation: moonGlow 3s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+@keyframes moonGlow {
+  from { filter: drop-shadow(0 0 10px rgba(255,230,80,0.5)); }
+  to   { filter: drop-shadow(0 0 22px rgba(255,230,80,0.9)); }
+}
+
+/* Timer */
+#ch5-timer-state {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.timer-wrapper {
+  padding: 20px;
+}
+
+.timer-label {
+  font-family: var(--font-sans);
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(180,170,220,0.65);
+  margin-bottom: 16px;
+}
+
+.timer-display {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 18vw, 7rem);
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 40px rgba(150,120,255,0.5);
+  line-height: 1;
+}
+
+.timer-sublabel {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(0.85rem, 2.8vw, 1rem);
+  color: rgba(180,170,220,0.5);
+  margin-top: 16px;
+}
+
+/* Botón "Ya llegó" / "Sal a la puerta" */
+#ch5-arrived-state {
+  position: relative;
+  z-index: 2;
+}
+
+.arrived-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  color: #fff;
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  padding: 18px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  animation: arrivedPulse 2s ease-in-out infinite, arrivedAppear 1s ease both;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+@keyframes arrivedAppear {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes arrivedPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.1); }
+  50%       { box-shadow: 0 0 0 16px rgba(255,255,255,0); }
+}
+
+.arrived-btn:active {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.7);
+}
+
+/* Casa */
+#ch5-house-state {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.house-scene {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(240px, 65vw);
+  animation: houseRise 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes houseRise {
+  from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+.house-silhouette svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 -4px 20px rgba(100,80,200,0.2));
+}
+
+/* Estrella fugaz especial */
+.special-star {
+  position: absolute;
+  z-index: 3;
+  cursor: pointer;
+  pointer-events: all;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  animation: specialStarPulse 1s ease-in-out infinite alternate;
+  text-shadow: 0 0 16px rgba(255,240,100,0.9);
+  transform: translate(-50%, -50%);
+}
+
+@keyframes specialStarPulse {
+  from { transform: translate(-50%, -50%) scale(1);    text-shadow: 0 0 10px rgba(255,240,100,0.8); }
+  to   { transform: translate(-50%, -50%) scale(1.35); text-shadow: 0 0 28px rgba(255,240,100,1), 0 0 50px rgba(255,200,50,0.6); }
+}
+
+/* Nota flotante (epílogo) */
+#ch5-epilogue-state {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+}
+
+#ch5-epilogue-state.hidden {
+  display: none !important;
+}
+
+.floating-note {
+  background: linear-gradient(160deg, #fffcf0 0%, #fff8e0 100%);
+  border: 1px solid rgba(200,170,80,0.4);
+  border-radius: 12px;
+  padding: 32px 28px;
+  max-width: 280px;
+  width: calc(100% - 48px);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.4),
+    0 2px 8px rgba(0,0,0,0.2),
+    inset 0 0 0 1px rgba(255,255,255,0.6);
+  cursor: pointer;
+  animation: noteFloat 2.2s ease-in-out infinite alternate, noteAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.floating-note:active {
+  transform: scale(0.95);
+}
+
+@keyframes noteFloat {
+  from { transform: translateY(0) rotate(-1deg); }
+  to   { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes noteAppear {
+  from { opacity: 0; transform: scale(0.6) rotate(-10deg); }
+  to   { opacity: 1; transform: scale(1) rotate(-1deg); }
+}
+
+.note-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.note-title {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #a08040;
+  margin-bottom: 6px;
+}
+
+.note-body {
+  font-family: var(--font-script);
+  font-size: clamp(1.6rem, 6vw, 2rem);
+  color: #3a2a10;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.note-location {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  color: #6a4a20;
+  margin-bottom: 20px;
+}
+
+.note-tap {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(160,128,64,0.6);
+  animation: tapBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes tapBlink {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}

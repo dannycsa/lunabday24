@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════════════════
+   ANIMATIONS.CSS — Keyframes compartidos y efectos extra
+   ═══════════════════════════════════════════════════════════ */
+
+/* Glassmorphism helper */
+.glass {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Water ripple */
+@keyframes ripple {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Bubble rise */
+@keyframes bubbleRise {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0.6; }
+  50%  { transform: translateY(-45vh) translateX(10px) scale(1.05); opacity: 0.4; }
+  100% { transform: translateY(-95vh) translateX(-5px) scale(0.85); opacity: 0; }
+}
+
+/* Fish swim */
+@keyframes fishSwimRight {
+  0%   { transform: translateX(-120px) scaleX(1); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateX(calc(100vw + 120px)) scaleX(1); opacity: 0; }
+}
+
+@keyframes fishSwimLeft {
+  0%   { transform: translateX(calc(100vw + 120px)) scaleX(-1); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.7; }
+  100% { transform: translateX(-120px) scaleX(-1); opacity: 0; }
+}
+
+/* Crepitación confeti */
+@keyframes confettiSpin {
+  from { transform: rotate(0deg) scale(1); }
+  to   { transform: rotate(360deg) scale(0.8); }
+}
+
+/* Estrella parpadeo suave */
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.9); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+
+/* Entrada suave general */
+@keyframes softEntry {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Ola de agua */
+@keyframes waterWave {
+  0%, 100% { d: path("M0,30 C30,10 70,50 100,30 L100,60 L0,60 Z"); }
+  50%       { d: path("M0,30 C30,50 70,10 100,30 L100,60 L0,60 Z"); }
+}
+
+/* Luz cenital pulsante */
+@keyframes lightRay {
+  0%, 100% { opacity: 0.15; transform: scaleX(1); }
+  50%       { opacity: 0.28; transform: scaleX(1.06); }
+}
+
+/* Aparecer desde arriba */
+@keyframes dropDown {
+  from { transform: translateY(-30px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}

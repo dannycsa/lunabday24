@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Para mi Lunita</title>
+  <link rel="icon" type="image/png" href="assets/img/moon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/chapters.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PANTALLA DE INICIO (desbloqueo de audio) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="splash-screen" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- OVERLAY DE CAPÍTULO (animación cinemática) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="chapter-overlay" class="hidden">
+    <div class="chapter-overlay-inner">
+      <p id="overlay-chapter-label">Capítulo I</p>
+      <h2 id="overlay-chapter-title">Título del capítulo</h2>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PANTALLA: CAPÍTULO BLOQUEADO -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="locked-screen" class="chapter-screen hidden">
+    <div class="locked-inner">
+      <div class="lock-icon">🔒</div>
+      <p class="locked-chapter-name"></p>
+      <p class="locked-message">Este momento aún no ha llegado</p>
+      <p class="locked-time">Vuelve a las <span id="locked-time-display">—</span></p>
+      <div class="locked-clock">
+        <span id="current-time-display">00:00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CAPÍTULO 1: 24 años, 24 horas (00:00) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+<div id="chapter-1" class="chapter-screen hidden chapter-1-bg">
+    <canvas id="confetti-canvas" style="position: absolute; z-index: 1;"></canvas>
+    
+    <div class="elegant-balloons">
+      <div class="css-balloon rose-gold b1"></div>
+      <div class="css-balloon pearl b2"></div>
+      <div class="css-balloon soft-gold b3"></div>
+      <div class="css-balloon rose-gold b4"></div>
+      <div class="css-balloon pearl b5"></div>
+    </div>
+
+    <div class="ch1-center" style="position: relative; z-index: 10;">
+      <div class="ch1-text-block">
+        <p class="ch1-pre">Hoy,</p>
+        <h1 class="ch1-main glow-text">Feliz Cumpleaños</h1>
+        <p class="ch1-years cursive-glow">Mi Lunita</p>
+      </div>
+    </div>
+    
+    <p class="return-hint" style="z-index: 10;">Vuelve a las <strong>08:00</strong></p>
+  </div>
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CAPÍTULO 2: Fortaleza para el día (08:00) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="chapter-2" class="chapter-screen hidden chapter-2-bg">
+    <div class="flowers-container" id="flowers-container"></div>
+    <div class="scroll-card" id="ch2-scroll">
+      <div class="scroll-inner">
+        <div class="scroll-decoration top">❧</div>
+        <div class="scroll-text">
+          Buenos días, mi amor.<br><br>
+          Sé que hoy te espera una jornada larga, pero antes de que te enfoques de lleno al trabajo, quería leerte un versículo para que te acompañe en cada hora de este día:<br><br>
+          
+          <span style="display: block; font-style: italic; margin-bottom: 5px;">
+            «Pero esforzaos vosotros, y no desfallezcan vuestras manos,<br>
+            pues hay recompensa para vuestra obra.»
+          </span>
+          <span style="display: block; text-align: right; font-size: 0.9em; margin-bottom: 20px;">
+            — 2 Crónicas 15:7
+          </span>
+          
+          Aunque la distancia no me permite darte un abrazo esta mañana, quiero que sepas que te acompaño en pensamiento y sentimiento. Llevas contigo una luz que ninguna rutina puede opacar. Estás todo el tiempo en mi mente, en cada paso que das.<br><br>
+          Espero de corazón que disfrutes mucho tu día, que te celebren como mereces y que, cada vez que vuelvas a esta página, recuerdes lo mucho te amo.
+        </div>
+        <div class="scroll-decoration bottom">❧</div>
+      </div>
+    </div>
+    <p class="return-hint">Vuelve a las <strong>12:00</strong></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CAPÍTULO 3: Tu propio mérito (12:00) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="chapter-3" class="chapter-screen hidden chapter-3-bg">
+    <div class="cola-elements" id="cola-elements"></div>
+    <div class="cola-label">
+      <div class="cola-label-inner">
+        <div class="cola-label-top">
+          <span class="cola-brand-text">Embol</span>
+        </div>
+        <div class="cola-label-content">
+          <p class="cola-message-text">
+            <!-- TEXT HOLDER: Mensaje de orgullo por su crecimiento profesional y esfuerzo -->
+            Lo que tienes lo construiste tú. Con esfuerzo, con dedicación, con esa determinación que te caracteriza. Cada logro en Embol tiene tu nombre, tu huella, tu empeño. Hoy, en tu cumpleaños, quiero que lo sientas: eres extraordinaria en lo que haces. 🏆
+          </p>
+        </div>
+        <div class="cola-label-bottom">
+          <span class="cola-tagline">Hecho con ❤ para ti</span>
+        </div>
+      </div>
+    </div>
+    <p class="return-hint">Vuelve a las <strong>18:00</strong></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CAPÍTULO 4: Un último esfuerzo (18:00) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="chapter-4" class="chapter-screen hidden chapter-4-bg">
+    <canvas id="ocean-canvas"></canvas>
+    <div class="ocean-text-block">
+      <p class="ocean-message">
+        <!-- TEXT HOLDER: Mensaje de validación de su agotamiento y la pronta llegada a casa -->
+        Ya casi. Sé que el cuerpo pide descanso, que el día ha sido largo y que las horas pesan. Pero llegas, siempre llegas. Y al otro lado del camino, hay calma, hay abrigo, hay alguien esperándote. Un poco más. Ya casi estás en casa. 🌊
+      </p>
+    </div>
+    <p class="return-hint">Vuelve a las <strong>19:30</strong></p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- CAPÍTULO 5: Dulce reencuentro (19:30) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div id="chapter-5" class="chapter-screen hidden chapter-5-bg">
+    <canvas id="stars-canvas"></canvas>
+    <div class="moon">🌙</div>
+
+    <!-- Estado A: Contador -->
+    <div id="ch5-timer-state">
+      <div class="timer-wrapper">
+        <p class="timer-label">Tu regalo llega en</p>
+        <div class="timer-display" id="countdown-display">00:00</div>
+        <p class="timer-sublabel">Esperando con ansias 🛵</p>
+      </div>
+    </div>
+
+    <!-- Estado B: Botón "Ya llegó" -->
+    <div id="ch5-arrived-state" class="hidden">
+      <button id="arrived-btn" class="arrived-btn">
+        <span>✨ Ya llegó ✨</span>
+      </button>
+    </div>
+
+    <!-- Estado C: Post-click (casita + música) -->
+    <div id="ch5-house-state" class="hidden">
+      <!-- La casita se dibuja en canvas de estrellas o SVG -->
+      <div class="house-scene">
+        <div class="house-silhouette">
+          <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Casa -->
+            <polygon points="100,10 180,70 20,70" fill="#0a0a1a"/>
+            <rect x="30" y="70" width="140" height="90" fill="#0a0a1a"/>
+            <!-- Puerta -->
+            <rect x="82" y="110" width="36" height="50" rx="18" fill="#1a1a3a"/>
+            <!-- Ventanas -->
+            <rect x="42" y="82" width="28" height="24" rx="4" fill="#ffe066" opacity="0.7"/>
+            <rect x="130" y="82" width="28" height="24" rx="4" fill="#ffe066" opacity="0.7"/>
+            <!-- Chimenea -->
+            <rect x="140" y="30" width="16" height="32" fill="#0a0a1a"/>
+          </svg>
+        </div>
+        <!-- Estrella que se convierte en estrella fugaz (la agrega JS) -->
+      </div>
+    </div>
+
+    <!-- Estado D: Epílogo - nota regalo -->
+    <div id="ch5-epilogue-state" class="hidden">
+      <div class="floating-note" id="floating-note">
+        <div class="note-inner">
+          <div class="note-icon">🎁</div>
+          <p class="note-title">Vale por</p>
+          <p class="note-body">un regalo especial</p>
+          <p class="note-location">en La Paz</p>
+          <p class="note-tap">Toca para recibir 💌</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- AUDIO GLOBAL (elementos ocultos) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <audio id="audio-ch1" loop>
+    <source src="assets/audio/ch1-birthday.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="audio-ch2" loop>
+    <source src="assets/audio/ch2-congratulations.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="audio-ch3" loop>
+    <source src="assets/audio/ch3-house-of-cards.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="audio-ch4" loop>
+    <source src="assets/audio/ch4-weird-fishes.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="audio-ch5-ambient" loop>
+    <source src="assets/audio/ch5-night-ambient.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="audio-ch5-music" loop>
+    <source src="assets/audio/ch5-mira-ninita.mp3" type="audio/mpeg" />
+  </audio>
+
+  <audio id="voice-ch2"><source src="assets/audio/voice-ch2.mp3" type="audio/mpeg" /></audio>
+  <audio id="voice-ch3"><source src="assets/audio/voice-ch3.mp3" type="audio/mpeg" /></audio>
+  <audio id="voice-ch4"><source src="assets/audio/voice-ch4.mp3" type="audio/mpeg" /></audio>
+
+  <!-- ENLACE DESCARGA PDF (epílogo) -->
+  <a id="gift-pdf-link" href="assets/pdf/regalo-la-paz.pdf" download="regalo-la-paz.pdf" class="hidden"></a>
+
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/chapters.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
