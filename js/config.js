@@ -8,7 +8,7 @@ window.BirthdayConfig = {
   // MODO DEBUG: Poner true para saltar el bloqueo horario
   // ─────────────────────────────────────────────────────
   debugMode: false,
-  debugForceChapter: 3,
+  debugForceChapter: 4,
   masterVolume: 0.4,
 
   // ─────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ window.BirthdayConfig = {
   // Formato 24h: "HH:MM". Puedes cambiar esto en vivo 
   // cuando la app te dé la hora estimada.
   // ─────────────────────────────────────────────────────
-  deliveryTargetTime: '20:00',
+  deliveryTargetTime: '15:42',
 
   // ─────────────────────────────────────────────────────
   // TIEMPO ANTES DE QUE APAREZCA LA ESTRELLA ESPECIAL

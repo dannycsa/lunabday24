@@ -308,17 +308,49 @@ window.Chapters = (() => {
               const floatingNote = document.getElementById('floating-note');
               if (floatingNote) {
                 floatingNote.addEventListener('click', () => {
-                  // Descargar PDF
-                  const pdfLink = document.getElementById('gift-pdf-link');
-                  if (pdfLink) pdfLink.click();
+                  
+                  // Detener audio o crossfade si es necesario (ya implementado en tu showHouseAndEpilogue)
+                  //AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
 
-                  // Ocultar nota
-                  floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
-                  setTimeout(() => {
-                    epilogueState.classList.add('hidden');
-                  }, 800);
-                });
-              }
+                  // 1. Iniciar captura con html2canvas
+                  html2canvas(floatingNote, {
+                    backgroundColor: null, // Fondo transparente
+                    scale: 3, // Alta calidad
+                    
+                    // ESTA ES LA CLAVE: Modificar el clon antes de capturarlo
+                    onclone: (clonedDoc) => {
+                      // Encontrar la nota dentro del documento clonado
+                      const clonedNote = clonedDoc.getElementById('floating-note');
+                      if (clonedNote) {
+                        // Forzar estilos para la captura perfecta:
+                        // Enderezar, quitar sombras (bordes raros), asegurar opacidad completa
+                        clonedNote.style.cssText += `
+                          transform: none !important;
+                          animation: none !important;
+                          box-shadow: none !important;
+                          opacity: 1 !important;
+                          filter: none !important;
+                          margin: 0 !important;
+                          border-radius: 12px; /* Mantener bordes redondeados limpios */
+                        `;
+                      }
+                    }
+                  }).then(canvas => {
+                    // 2. Crear el enlace de descarga
+                    const link = document.createElement('a');
+                    link.download = 'coupon.png'; // CORREGIDO: Nombre exacto
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+
+                    // 3. Ocultar la nota original (la que ve el usuario) con animación
+                    floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
+                    setTimeout(() => {
+                      epilogueState.classList.add('hidden');
+                    }, 800);
+                  }); // <-- Cierra el .then de html2canvas
+
+                }); // <-- Cierra el listener del clic
+              } // <-- Cierra el if
             });
           }
         }, BirthdayConfig.epilogueStarDelay);
@@ -330,11 +362,10 @@ window.Chapters = (() => {
       const initialRemaining = getRemainingSeconds();
 
       if (initialRemaining <= 0) {
-        // CASO 1: Entró tarde (la sorpresa ya llegó).
-        // Saltar el contador y el botón, ir directo a la casa.
+        // CASO 1: Entró tarde. Saltar directo a la casa.
         showHouseAndEpilogue();
       } else {
-        // CASO 2: Entró a tiempo. Mostrar contador y audio ambiental.
+        // CASO 2: Entró a tiempo. Mostrar contador.
         AudioManager.play('audio-ch5-ambient', { loop: true });
 
         function tickCountdown() {
@@ -345,7 +376,6 @@ window.Chapters = (() => {
           
           if (remaining <= 0) {
             clearInterval(countdownInterval);
-            // Llegó a 0 mientras miraba. Mostrar botón "Ya volví".
             timerState.classList.add('hidden');
             arrivedState.classList.remove('hidden');
           }
