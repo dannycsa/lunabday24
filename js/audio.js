@@ -92,22 +92,24 @@ window.AudioManager = (() => {
 
     _current = el;
   }
+  
   function crossfade(fromId, toId, { fadeMs = 1200 } = {}) {
-    if (!_unlocked) return;
-    const from = _getEl(fromId);
-    const to   = _getEl(toId);
-    
-    const targetVol = BirthdayConfig.masterVolume || 0.4;
+  if (!_unlocked) return;
+  const from = _getEl(fromId);
+  const to   = _getEl(toId);
+  const targetVol = BirthdayConfig.masterVolume || 0.4;
 
-    if (from && !from.paused) _fadeOut(from, fadeMs);
-    if (to) {
-      to.loop = true;
-      to.volume = 0;
-      to.currentTime = 0;
-      to.play().then(() => _fadeIn(to, targetVol, fadeMs)).catch(() => {});
-      _current = to;
-    }
+  if (from && !from.paused) _fadeOut(from, fadeMs);
+
+  if (to) {
+    if (to._fadeTimer) clearInterval(to._fadeTimer); // ← nuevo
+    to.loop = true;
+    to.volume = 0;
+    to.currentTime = 0;
+    to.play().then(() => _fadeIn(to, targetVol, fadeMs)).catch(() => {});
+    _current = to;
   }
+}
 
   // ─── NOTAS DE VOZ (Ducking: Baja la música mientras hablas) ───
   function playVoice(id) {
@@ -136,31 +138,36 @@ window.AudioManager = (() => {
   }
 
   function _fadeIn(el, targetVolume = 1, durationMs = 1000) {
-    const steps = 30;
-    const interval = durationMs / steps;
-    const increment = targetVolume / steps;
-    let v = el.volume;
-    const timer = setInterval(() => {
-      v = Math.min(v + increment, targetVolume);
-      el.volume = v;
-      if (v >= targetVolume) clearInterval(timer);
-    }, interval);
-  }
+  if (el._fadeTimer) clearInterval(el._fadeTimer); // ← cancelar el anterior
+  const steps = 30;
+  const interval = durationMs / steps;
+  const increment = targetVolume / steps;
+  let v = 0;
+  el._fadeTimer = setInterval(() => {
+    v = Math.min(v + increment, targetVolume);
+    el.volume = v;
+    if (v >= targetVolume) clearInterval(el._fadeTimer);
+  }, interval);
+}
 
-  function _fadeOut(el, durationMs = 800) {
-    const steps = 20;
-    const interval = durationMs / steps;
-    const decrement = el.volume / steps;
-    let v = el.volume;
-    const timer = setInterval(() => {
-      v = Math.max(v - decrement, 0);
-      el.volume = v;
-      if (v <= 0) {
-        el.pause();
-        clearInterval(timer);
-      }
-    }, interval);
-  }
+function _fadeOut(el, durationMs = 800) {
+  if (!el || el.paused) return;
+  if (el._fadeTimer) clearInterval(el._fadeTimer); // ← cancelar el anterior
+  const startVolume = el.volume > 0 ? el.volume : 0.01;
+  const steps = 20;
+  const interval = durationMs / steps;
+  const decrement = startVolume / steps;
+  let v = startVolume;
+  el._fadeTimer = setInterval(() => {
+    v = Math.max(v - decrement, 0);
+    el.volume = v;
+    if (v <= 0) {
+      clearInterval(el._fadeTimer);
+      el.pause();
+      el.currentTime = 0;
+    }
+  }, interval);
+}
 
   return { unlock, play, stopAll, crossfade, playVoice };
 })();
