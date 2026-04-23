@@ -155,57 +155,54 @@
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- CAPÍTULO 5: Dulce reencuentro (19:30) -->
   <!-- ═══════════════════════════════════════════════════ -->
-  <div id="chapter-5" class="chapter-screen hidden chapter-5-bg">
+<div id="chapter-5" class="chapter-screen hidden chapter-5-bg">
     <canvas id="stars-canvas"></canvas>
-    <div class="moon">🌙</div>
+    <div class="moon"></div>
 
-    <!-- Estado A: Contador -->
     <div id="ch5-timer-state">
       <div class="timer-wrapper">
-        <p class="timer-label">Tu regalo llega en</p>
+        <p class="timer-label">Tu sorpresa llega en</p>
         <div class="timer-display" id="countdown-display">00:00</div>
-        <p class="timer-sublabel">Esperando con ansias 🛵</p>
+        <p class="timer-sublabel">Esperando con ansias</p>
       </div>
     </div>
 
-    <!-- Estado B: Botón "Ya llegó" -->
     <div id="ch5-arrived-state" class="hidden">
-      <button id="arrived-btn" class="arrived-btn">
-        <span>✨ Ya llegó ✨</span>
-      </button>
-    </div>
-
-    <!-- Estado C: Post-click (casita + música) -->
-    <div id="ch5-house-state" class="hidden">
-      <!-- La casita se dibuja en canvas de estrellas o SVG -->
-      <div class="house-scene">
-        <div class="house-silhouette">
-          <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Casa -->
-            <polygon points="100,10 180,70 20,70" fill="#0a0a1a"/>
-            <rect x="30" y="70" width="140" height="90" fill="#0a0a1a"/>
-            <!-- Puerta -->
-            <rect x="82" y="110" width="36" height="50" rx="18" fill="#1a1a3a"/>
-            <!-- Ventanas -->
-            <rect x="42" y="82" width="28" height="24" rx="4" fill="#ffe066" opacity="0.7"/>
-            <rect x="130" y="82" width="28" height="24" rx="4" fill="#ffe066" opacity="0.7"/>
-            <!-- Chimenea -->
-            <rect x="140" y="30" width="16" height="32" fill="#0a0a1a"/>
-          </svg>
-        </div>
-        <!-- Estrella que se convierte en estrella fugaz (la agrega JS) -->
+      <div class="arrived-container">
+        <p class="arrived-text">Sal a la puerta.</p>
+        <button id="arrived-btn" class="arrived-btn-subtle">
+          Ya volví
+        </button>
       </div>
     </div>
 
-    <!-- Estado D: Epílogo - nota regalo -->
+    <div id="ch5-house-state" class="hidden">
+      <div class="landscape-scene">
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,300 L0,150 Q250,50 550,180 T1000,100 L1000,300 Z" fill="#080b1c"/>
+          
+          <path d="M0,300 L0,220 Q300,280 650,160 T1000,200 L1000,300 Z" fill="#03050d"/>
+          
+          <g transform="translate(630, 50) scale(0.85, 1.3)">
+            
+            <path id="smoke-wisp" d="M76 15 Q70 0 76 -15 T72 -40" stroke="#fff" stroke-width="1.8" opacity="50" fill="none" class="smoke-wisp"/>
+
+            <polygon points="50,0 100,45 0,45" fill="#010204"/>
+            <rect x="15" y="45" width="70" height="55" fill="#010206"/>
+            <rect x="70" y="15" width="12" height="25" fill="#010204"/>
+          </g>
+
+        </svg>
+      </div>
+    </div>
+
     <div id="ch5-epilogue-state" class="hidden">
       <div class="floating-note" id="floating-note">
         <div class="note-inner">
-          <div class="note-icon">🎁</div>
           <p class="note-title">Vale por</p>
           <p class="note-body">un regalo especial</p>
           <p class="note-location">en La Paz</p>
-          <p class="note-tap">Toca para recibir 💌</p>
+          <p class="note-tap">Toca para guardar</p>
         </div>
       </div>
     </div>

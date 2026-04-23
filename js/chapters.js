@@ -251,7 +251,7 @@ window.Chapters = (() => {
     });
   }
 
-  /* ══════════════════════════════════════════
+/* ══════════════════════════════════════════
      CAPÍTULO 5 — Dulce reencuentro
   ══════════════════════════════════════════ */
   function showChapter5(config) {
@@ -270,13 +270,10 @@ window.Chapters = (() => {
       const starsApi = Animations.startStars();
       if (starsApi) _cleanups.push(() => starsApi.destroy());
 
-      // Audio ambiental
-      AudioManager.play('audio-ch5-ambient', { loop: true });
-
-      // ─── Estado A: Contador ───
-      const timerState   = document.getElementById('ch5-timer-state');
-      const arrivedState = document.getElementById('ch5-arrived-state');
-      const houseState   = document.getElementById('ch5-house-state');
+      // ─── Referencias del DOM ───
+      const timerState    = document.getElementById('ch5-timer-state');
+      const arrivedState  = document.getElementById('ch5-arrived-state');
+      const houseState    = document.getElementById('ch5-house-state');
       const epilogueState = document.getElementById('ch5-epilogue-state');
       const countdownDisplay = document.getElementById('countdown-display');
 
@@ -294,62 +291,77 @@ window.Chapters = (() => {
         return diff > 0 ? diff : 0;
       }
 
-      function tickCountdown() {
-        if (!countdownDisplay) return;
-        
-        let remaining = getRemainingSeconds();
-        countdownDisplay.textContent = BirthdayConfig.formatCountdown(remaining);
-        
-        if (remaining <= 0) {
-          clearInterval(countdownInterval);
-          // Transición a Estado B
-          timerState.classList.add('hidden');
-          arrivedState.classList.remove('hidden');
-        }
+      // ─── LÓGICA DE LA ESCENA FINAL (Estado C y D) ───
+      function showHouseAndEpilogue() {
+        // Transición de audio y pantallas
+        AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
+        timerState.classList.add('hidden');
+        arrivedState.classList.add('hidden');
+        houseState.classList.remove('hidden');
+
+        // Timer para mostrar estrella especial (epílogo)
+        const epilogueTimer = setTimeout(() => {
+          if (starsApi) {
+            starsApi.activateSpecialStar(() => {
+              epilogueState.classList.remove('hidden');
+
+              const floatingNote = document.getElementById('floating-note');
+              if (floatingNote) {
+                floatingNote.addEventListener('click', () => {
+                  // Descargar PDF
+                  const pdfLink = document.getElementById('gift-pdf-link');
+                  if (pdfLink) pdfLink.click();
+
+                  // Ocultar nota
+                  floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
+                  setTimeout(() => {
+                    epilogueState.classList.add('hidden');
+                  }, 800);
+                });
+              }
+            });
+          }
+        }, BirthdayConfig.epilogueStarDelay);
+
+        _cleanups.push(() => clearTimeout(epilogueTimer));
       }
 
-      tickCountdown();
-      const countdownInterval = setInterval(tickCountdown, 1000);
-      _cleanups.push(() => clearInterval(countdownInterval));
+      // ─── EVALUACIÓN INICIAL DEL TIEMPO ───
+      const initialRemaining = getRemainingSeconds();
 
-      // ─── Estado B: "Ya llegó" ───
-      const arrivedBtn = document.getElementById('arrived-btn');
-      if (arrivedBtn) {
-        arrivedBtn.addEventListener('click', () => {
-          // Detener ambientales, iniciar música
-          AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
+      if (initialRemaining <= 0) {
+        // CASO 1: Entró tarde (la sorpresa ya llegó).
+        // Saltar el contador y el botón, ir directo a la casa.
+        showHouseAndEpilogue();
+      } else {
+        // CASO 2: Entró a tiempo. Mostrar contador y audio ambiental.
+        AudioManager.play('audio-ch5-ambient', { loop: true });
 
-          // Transición a Estado C
-          arrivedState.classList.add('hidden');
-          houseState.classList.remove('hidden');
+        function tickCountdown() {
+          if (!countdownDisplay) return;
+          
+          let remaining = getRemainingSeconds();
+          countdownDisplay.textContent = BirthdayConfig.formatCountdown(remaining);
+          
+          if (remaining <= 0) {
+            clearInterval(countdownInterval);
+            // Llegó a 0 mientras miraba. Mostrar botón "Ya volví".
+            timerState.classList.add('hidden');
+            arrivedState.classList.remove('hidden');
+          }
+        }
 
-          // Timer para mostrar estrella especial (epílogo)
-          const epilogueTimer = setTimeout(() => {
-            if (starsApi) {
-              starsApi.activateSpecialStar(() => {
-                // ─── Estado D: Epílogo ───
-                epilogueState.classList.remove('hidden');
+        tickCountdown();
+        const countdownInterval = setInterval(tickCountdown, 1000);
+        _cleanups.push(() => clearInterval(countdownInterval));
 
-                const floatingNote = document.getElementById('floating-note');
-                if (floatingNote) {
-                  floatingNote.addEventListener('click', () => {
-                    // Descargar PDF
-                    const pdfLink = document.getElementById('gift-pdf-link');
-                    if (pdfLink) pdfLink.click();
-
-                    // Ocultar nota
-                    floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
-                    setTimeout(() => {
-                      epilogueState.classList.add('hidden');
-                    }, 800);
-                  });
-                }
-              });
-            }
-          }, BirthdayConfig.epilogueStarDelay);
-
-          _cleanups.push(() => clearTimeout(epilogueTimer));
-        }, { once: true });
+        // Evento del botón "Ya volví"
+        const arrivedBtn = document.getElementById('arrived-btn');
+        if (arrivedBtn) {
+          arrivedBtn.addEventListener('click', () => {
+            showHouseAndEpilogue();
+          }, { once: true });
+        }
       }
     });
   }

@@ -23,13 +23,13 @@ window.BirthdayConfig = {
   // Formato 24h: "HH:MM". Puedes cambiar esto en vivo 
   // cuando la app te dé la hora estimada.
   // ─────────────────────────────────────────────────────
-  deliveryTargetTime: '20:00',
+  deliveryTargetTime: '11:30',
 
   // ─────────────────────────────────────────────────────
   // TIEMPO ANTES DE QUE APAREZCA LA ESTRELLA ESPECIAL
   // después de hacer click en "Sal a la puerta" (en ms)
   // ─────────────────────────────────────────────────────
-  epilogueStarDelay: 60000, // 1 minuto
+  epilogueStarDelay: 30000, // 1 minuto
   // ─────────────────────────────────────────────────────
   // DEFINICIÓN DE CAPÍTULOS
   // unlockHour / unlockMinute: hora local de desbloqueo

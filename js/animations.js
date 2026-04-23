@@ -384,7 +384,7 @@ Animations.startColaElements = function() {
 };
 
 /* ════════════════════════════════════════
-   CAPÍTULO 4 — Océano (Canvas)
+   CAPÍTULO 4 — Océano Profundo y Siluetas
    ════════════════════════════════════════ */
 Animations.startOcean = function() {
   const canvas = document.getElementById('ocean-canvas');
@@ -398,123 +398,174 @@ Animations.startOcean = function() {
   resize();
   window.addEventListener('resize', resize);
 
+  // 1. Burbujas grandes (escasas)
   const bubbles = [];
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 15; i++) {
     bubbles.push({
       x: Math.random() * window.innerWidth,
       y: window.innerHeight + Math.random() * 200,
-      r: Math.random() * 8 + 3,
-      vy: -(Math.random() * 0.8 + 0.3),
-      vx: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.4 + 0.1,
-      wander: Math.random() * Math.PI * 2,
-      wanderSpeed: (Math.random() - 0.5) * 0.02,
+      r: Math.random() * 6 + 2,
+      vy: -(Math.random() * 0.6 + 0.2),
+      vx: (Math.random() - 0.5) * 0.2,
+      opacity: Math.random() * 0.3 + 0.05,
+      wander: Math.random() * Math.PI * 2
     });
   }
 
+  // 2. "Marine Snow" (Partículas diminutas iluminadas)
+  const plankton = [];
+  for (let i = 0; i < 100; i++) {
+    plankton.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      s: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      baseAlpha: Math.random() * 0.5 + 0.1
+    });
+  }
+
+  // 3. Peces (Siluetas dinámicas)
   const fishes = [];
-  const FISH = ['🐟', '🐠', '🐡', '🦑'];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     fishes.push({
-      emoji: FISH[Math.floor(Math.random() * FISH.length)],
-      x: Math.random() < 0.5 ? -80 : window.innerWidth + 80,
-      y: 60 + Math.random() * (window.innerHeight * 0.65),
+      x: Math.random() < 0.5 ? -100 : window.innerWidth + 100,
+      y: 80 + Math.random() * (window.innerHeight * 0.7),
       dir: Math.random() < 0.5 ? 1 : -1,
-      speed: 0.4 + Math.random() * 0.5,
-      size: 1.2 + Math.random() * 0.8,
-      opacity: 0.55 + Math.random() * 0.3,
+      speed: 0.3 + Math.random() * 0.4,
+      size: 0.8 + Math.random() * 0.7,
+      offset: Math.random() * Math.PI * 2 // Para el nado
     });
   }
 
   let t = 0;
   let raf;
 
+  // Dibuja los rayos de luz volumétricos
   function drawLightRays() {
-    const W = canvas.width;
-    const H = canvas.height;
-    const cx = W * 0.5;
+    const W = canvas.width, H = canvas.height, cx = W * 0.5;
+    
+    ctx.save();
+    // Modo screen para que la luz sume luminosidad
+    ctx.globalCompositeOperation = 'screen'; 
 
-    for (let i = 0; i < 4; i++) {
-      const angle   = (-0.3 + i * 0.2) + Math.sin(t * 0.008 + i) * 0.05;
-      const width   = 30 + i * 18;
-      const opacity = 0.06 + Math.sin(t * 0.01 + i * 0.8) * 0.03;
+    for (let i = 0; i < 5; i++) {
+      const angle   = (-0.4 + i * 0.2) + Math.sin(t * 0.005 + i) * 0.08;
+      const width   = 35 + i * 18; // Ligeramente más angostos en la base
+      const opacity = 0.04 + Math.sin(t * 0.01 + i) * 0.02;
 
-      ctx.save();
-      ctx.globalAlpha = opacity;
-      const grad = ctx.createLinearGradient(cx, 0, cx, H * 0.8);
-      grad.addColorStop(0, 'rgba(120,200,255,0.7)');
-      grad.addColorStop(1, 'rgba(0,60,120,0)');
+      // Gradiente vertical para desvanecer hacia el fondo
+      const grad = ctx.createLinearGradient(cx, 0, cx + Math.tan(angle) * H, H);
+      grad.addColorStop(0, `rgba(140, 210, 255, ${opacity})`);
+      grad.addColorStop(0.5, `rgba(50, 120, 200, ${opacity * 0.4})`);
+      grad.addColorStop(1, 'rgba(0, 20, 50, 0)');
+
+      // EL TRUCO: Usar sombra difuminada para suavizar los bordes duros del polígono
+      ctx.shadowColor = `rgba(140, 210, 255, ${opacity * 0.8})`;
+      ctx.shadowBlur = 40; // Alto difuminado en los bordes
 
       ctx.beginPath();
-      ctx.moveTo(cx, 0);
-      ctx.lineTo(
-        cx + Math.tan(angle) * H * 0.8 - width / 2,
-        H * 0.8
-      );
-      ctx.lineTo(
-        cx + Math.tan(angle) * H * 0.8 + width / 2,
-        H * 0.8
-      );
+      ctx.moveTo(cx - width * 0.5, 0);
+      ctx.lineTo(cx + width * 0.5, 0);
+      // Ensanchar mucho más en la base para dar efecto de perspectiva
+      ctx.lineTo(cx + Math.tan(angle) * H + width * 3, H); 
+      ctx.lineTo(cx + Math.tan(angle) * H - width * 3, H);
       ctx.closePath();
+      
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.restore();
     }
+    ctx.restore();
+  }
+
+  function drawPlankton() {
+    ctx.fillStyle = '#ffffff';
+    plankton.forEach(p => {
+      p.x += p.vx + Math.sin(t * 0.01) * 0.1;
+      p.y += p.vy - 0.1; // Flotan suavemente hacia arriba
+      
+      if (p.y < 0) p.y = canvas.height;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+
+      const alpha = p.baseAlpha + Math.sin(t * 0.02 + p.x) * 0.2;
+      ctx.globalAlpha = Math.max(0, alpha);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
   }
 
   function drawBubbles() {
     bubbles.forEach(b => {
-      b.wander += b.wanderSpeed;
-      b.x += b.vx + Math.sin(b.wander) * 0.3;
+      b.wander += 0.02;
+      b.x += b.vx + Math.sin(b.wander) * 0.4;
       b.y += b.vy;
 
       if (b.y < -20) {
         b.y = canvas.height + 20;
         b.x = Math.random() * canvas.width;
-        b.opacity = Math.random() * 0.4 + 0.1;
       }
 
       ctx.save();
       ctx.globalAlpha = b.opacity;
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(160,220,255,0.8)';
+      ctx.strokeStyle = 'rgba(160,220,255,0.6)';
       ctx.lineWidth = 1;
       ctx.stroke();
-
-      // Highlight
-      ctx.beginPath();
-      ctx.arc(b.x - b.r * 0.3, b.y - b.r * 0.3, b.r * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fill();
       ctx.restore();
     });
   }
 
+  // Dibuja siluetas elegantes con movimiento de nado
   function drawFish() {
     fishes.forEach(f => {
       f.x += f.speed * f.dir;
       const W = canvas.width;
-      if (f.dir > 0 && f.x > W + 100) {
-        f.x = -80;
-        f.y = 60 + Math.random() * (canvas.height * 0.65);
-      } else if (f.dir < 0 && f.x < -100) {
-        f.x = W + 80;
-        f.y = 60 + Math.random() * (canvas.height * 0.65);
+      
+      if (f.dir > 0 && f.x > W + 150) {
+        f.x = -150; f.y = 80 + Math.random() * (canvas.height * 0.7);
+      } else if (f.dir < 0 && f.x < -150) {
+        f.x = W + 150; f.y = 80 + Math.random() * (canvas.height * 0.7);
       }
 
       ctx.save();
-      ctx.globalAlpha = f.opacity;
-      ctx.font = `${f.size * 28}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.translate(f.x, f.y);
+      ctx.scale(-f.dir * f.size, f.size);
 
-      if (f.dir < 0) {
-        ctx.scale(-1, 1);
-        ctx.fillText(f.emoji, -f.x, f.y);
-      } else {
-        ctx.fillText(f.emoji, f.x, f.y);
-      }
+      // Movimiento ondulante de la cola
+      const swim = Math.sin(t * 0.05 * f.speed + f.offset);
+      const tailWobble = swim * 8;
+
+      ctx.beginPath();
+      // Nariz
+      ctx.moveTo(-20, 0);
+      // Lomo superior
+      ctx.quadraticCurveTo(-5, -12, 15, -4);
+      // Cola superior
+      ctx.quadraticCurveTo(25, -6 + tailWobble * 0.5, 35, -10 + tailWobble);
+      // Aleta trasera
+      ctx.lineTo(30, 0 + tailWobble);
+      ctx.lineTo(35, 10 + tailWobble);
+      // Cola inferior
+      ctx.quadraticCurveTo(25, 6 + tailWobble * 0.5, 15, 4);
+      // Vientre
+      ctx.quadraticCurveTo(-5, 14, -20, 0);
+
+      // Aleta superior pequeña
+      ctx.moveTo(0, -10);
+      ctx.quadraticCurveTo(10, -20, 12, -6);
+
+      // Sombra oscura con un toque de azul marino
+      ctx.fillStyle = 'rgba(2, 8, 20, 0.85)';
+      
+      // Desenfoque sutil para simular profundidad en el agua
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 4;
+      
+      ctx.fill();
       ctx.restore();
     });
   }
@@ -523,24 +574,18 @@ Animations.startOcean = function() {
     t++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Gradiente base
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#0d2a5e');
-    grad.addColorStop(0.4, '#071a3e');
-    grad.addColorStop(1, '#020710');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     drawLightRays();
-    drawBubbles();
+    drawPlankton();
     drawFish();
+    drawBubbles();
 
-    // Sutil ondulación en la parte superior
-    const waveY = 50 + Math.sin(t * 0.02) * 8;
-    const wGrad = ctx.createLinearGradient(0, 0, 0, waveY + 40);
-    wGrad.addColorStop(0, 'rgba(13,42,94,0.9)');
-    wGrad.addColorStop(1, 'rgba(13,42,94,0)');
+    // Sutil ondulación en la parte superior (superficie lejana)
+    const waveY = 20 + Math.sin(t * 0.015) * 10;
+    const wGrad = ctx.createLinearGradient(0, 0, 0, waveY + 80);
+    wGrad.addColorStop(0, 'rgba(10, 40, 90, 0.5)');
+    wGrad.addColorStop(1, 'rgba(10, 40, 90, 0)');
     ctx.fillStyle = wGrad;
+    
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(canvas.width, 0);
@@ -549,7 +594,7 @@ Animations.startOcean = function() {
     const wStep = canvas.width / 8;
     for (let x = canvas.width; x >= 0; x -= wStep) {
       const phase = (x / canvas.width) * Math.PI * 2;
-      const y = waveY + Math.sin(t * 0.025 + phase) * 6;
+      const y = waveY + Math.sin(t * 0.02 + phase) * 8;
       ctx.lineTo(x, y);
     }
     ctx.closePath();
