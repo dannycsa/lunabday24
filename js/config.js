@@ -23,7 +23,7 @@ window.BirthdayConfig = {
   // Formato 24h: "HH:MM". Puedes cambiar esto en vivo 
   // cuando la app te dé la hora estimada.
   // ─────────────────────────────────────────────────────
-  deliveryTargetTime: '15:42',
+  deliveryTargetTime: '23:00',
 
   // ─────────────────────────────────────────────────────
   // TIEMPO ANTES DE QUE APAREZCA LA ESTRELLA ESPECIAL
