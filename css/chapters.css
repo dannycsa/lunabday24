@@ -777,3 +777,39 @@
   0%, 100% { opacity: 0.6; }
   50%       { opacity: 1; }
 }
+
+/* ════════════════════════════════════════
+   MODO NAVEGACIÓN LIBRE (BOTÓN SUTIL Y TRANSICIONES)
+   ════════════════════════════════════════ */
+#btn-next-chapter {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 9999;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-sans);
+  font-size: 0.75rem; /* Letra pequeña */
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 1.2s ease; /* Transición súper suave */
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5); /* Para que se lea en fondos claros */
+}
+
+#btn-next-chapter:hover {
+  color: rgba(255, 255, 255, 0.9);
+  transform: translateX(3px); /* Deslizamiento muy sutil */
+}
+
+#btn-next-chapter.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+
+/* Ocultar los textos de "Vuelve a las..." en modo libre */
+body.free-mode .return-hint {
+  display: none !important;
+}

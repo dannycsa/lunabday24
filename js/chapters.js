@@ -6,11 +6,53 @@ window.Chapters = (() => {
 
   // Referencia a cleanups de animaciones
   let _cleanups = [];
+  
+  // Índice para llevar el control en el MODO LIBRE
+  let currentFreeIndex = 0; 
 
   function _cleanup() {
     _cleanups.forEach(fn => { try { fn(); } catch(e) {} });
     _cleanups = [];
   }
+
+  // ─── NUEVO: Detener audios al cambiar de capítulo en Modo Libre ───
+  function stopAllAudioSafely() {
+    if (window.AudioManager) AudioManager.stopAll();
+    document.querySelectorAll('audio').forEach(a => {
+      a.pause();
+      a.currentTime = 0;
+    });
+  }
+
+  // ─── NUEVO: Avanzar al siguiente capítulo (Modo Libre) ───
+  function advanceToNextChapter() {
+    if (currentFreeIndex >= BirthdayConfig.chapters.length - 1) return;
+    
+    currentFreeIndex++;
+    const nextCh = BirthdayConfig.chapters[currentFreeIndex];
+
+    // Ocultar botón temporalmente mientras pasa la cinemática
+    const btn = document.getElementById('btn-next-chapter');
+    if (btn) btn.classList.add('hidden');
+
+    // Cargar el siguiente capítulo
+    if (nextCh.id === 1) showChapter1(nextCh);
+    else if (nextCh.id === 2) showChapter2(nextCh);
+    else if (nextCh.id === 3) showChapter3(nextCh);
+    else if (nextCh.id === 4) showChapter4(nextCh);
+    else if (nextCh.id === 5) showChapter5(nextCh);
+  }
+
+  // ─── NUEVO: Inicializar botón si el Modo Libre está activo ───
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.BirthdayConfig && BirthdayConfig.freeMode) {
+      document.body.classList.add('free-mode');
+      const btn = document.getElementById('btn-next-chapter');
+      if (btn) {
+        btn.addEventListener('click', advanceToNextChapter);
+      }
+    }
+  });
 
 // ─── Mostrar overlay cinemático y luego revelar capítulo ───
   function showWithCinematicIntro(chapterId, config, afterCallback) {
@@ -32,9 +74,10 @@ window.Chapters = (() => {
     labelEl.style.color = config.textColor || '#ffffff';
     overlay.style.backgroundColor = config.bgColor || '#000000';
 
-    // 3. Resetear Estado Inicial
-    overlay.className = ''; 
-    overlay.style.opacity = '1';
+    // 3. Resetear Estado Inicial con transición de color
+    overlay.classList.remove('hidden'); 
+    overlay.style.transition = 'opacity 1.5s ease-in-out';
+    overlay.style.opacity = '0';
 
     labelEl.style.transition = 'all 1.2s ease';
     labelEl.style.opacity = '0';
@@ -46,30 +89,61 @@ window.Chapters = (() => {
     titleEl.style.transform = 'translateY(10px)';
     titleEl.style.animation = 'none'; // Anular CSS
 
-    // 4. Secuencia de Animación
-    // A) Aparece "Capítulo X"
-    setTimeout(() => {
-      labelEl.style.opacity = '0.7';
-      labelEl.style.transform = 'translateY(0)';
-    }, 100);
+    // Forzar redibujado para que inicie la transición de opacidad
+    void overlay.offsetWidth;
+    overlay.style.opacity = '1';
 
-    // B) Después de 2 segundos exactos, aparece el Subtítulo
-    setTimeout(() => {
-      titleEl.style.opacity = '1';
-      titleEl.style.transform = 'translateY(0)';
-    }, 2100); 
+    // FADE OUT DEL AUDIO MIENTRAS SE OSCURECE LA PANTALLA
+    if (window.AudioManager && window.AudioManager.fadeOutAll) {
+      AudioManager.fadeOutAll(1500);
+    }
 
-    // C) Mantener ambos visibles y luego desvanecerlos
+    // 4. Secuencia de Animación (Inicia cuando el color ya tapó la pantalla tras 1.5s)
     setTimeout(() => {
-      labelEl.style.opacity = '0';
-      titleEl.style.opacity = '0';
-    }, 5500); 
+      
+      // Apagamos los componentes del capítulo viejo tras bambalinas
+      _cleanup();
+      stopAllAudioSafely(); // Por si quedó algún residuo
+      hideAll();
 
-    // D) Ocultar el overlay y arrancar el contenido
-    setTimeout(() => {
-      overlay.classList.add('hidden');
-      if (afterCallback) afterCallback();
-    }, 6700); 
+      // A) Aparece "Capítulo X" (Con 2 SEGUNDOS EXTRA de espera en color sólido)
+      setTimeout(() => {
+        labelEl.style.opacity = '0.7';
+        labelEl.style.transform = 'translateY(0)';
+      }, 2000);
+
+      // B) Después de 2 segundos exactos, aparece el Subtítulo
+      setTimeout(() => {
+        titleEl.style.opacity = '1';
+        titleEl.style.transform = 'translateY(0)';
+      }, 4000); 
+
+      // C) Mantener ambos visibles y luego desvanecerlos
+      setTimeout(() => {
+        labelEl.style.opacity = '0';
+        titleEl.style.opacity = '0';
+      }, 7500); 
+
+      // D) Ocultar el overlay y arrancar el contenido
+      setTimeout(() => {
+        overlay.style.opacity = '0'; // Se desvanece la cortina de color
+        
+        if (afterCallback) afterCallback(); // Arranca el nuevo audio y visuales
+
+        setTimeout(() => {
+          overlay.classList.add('hidden');
+        }, 1500);
+
+        // Mostrar botón Siguiente discretamente 1 segundo DESPUÉS de que inicie la voz (a los 4s del inicio del cap)
+        if (window.BirthdayConfig && BirthdayConfig.freeMode && currentFreeIndex < BirthdayConfig.chapters.length - 1) {
+          setTimeout(() => {
+            const btn = document.getElementById('btn-next-chapter');
+            if (btn) btn.classList.remove('hidden');
+          }, 4000); 
+        }
+      }, 8700); 
+
+    }, 1500); // 1500ms es lo que tarda la transición de color inicial
   }
 
   // ─── Ocultar todas las pantallas ───
@@ -126,7 +200,7 @@ window.Chapters = (() => {
         timeEl.textContent = `${h}:${m}`;
       }
 
-      // Reloj en tiempo real (Con Segundos para que valides en Paraguay que es hora Boliviana)
+      // Reloj en tiempo real
       const clockEl = document.getElementById('current-time-display');
       function tickClock() {
         if (clockEl) {
@@ -164,7 +238,7 @@ window.Chapters = (() => {
       if (stopConfetti) _cleanups.push(stopConfetti);
 
       // Audio
-      AudioManager.play('audio-ch1', { loop: true });
+      if (window.AudioManager) AudioManager.play('audio-ch1', { loop: true });
     });
   }
 
@@ -187,12 +261,13 @@ window.Chapters = (() => {
         Animations.startFlowers();
       }, 300);
 
-      AudioManager.play('audio-ch2', { loop: true });
-      
-      // La voz suena 3 segundos después de que empieza el capítulo
-      setTimeout(() => {
-        AudioManager.playVoice('voice-ch2');
-      }, 3000); 
+      if (window.AudioManager) {
+        AudioManager.play('audio-ch2', { loop: true });
+        // La voz suena 3 segundos después de que empieza el capítulo
+        setTimeout(() => {
+          AudioManager.playVoice('voice-ch2');
+        }, 3000); 
+      }
     });
   }
 
@@ -215,12 +290,13 @@ window.Chapters = (() => {
         Animations.startColaElements();
       }, 300);
 
-      AudioManager.play('audio-ch3', { loop: true });
-      
-      // La voz suena 3 segundos después de que empieza el capítulo
-      setTimeout(() => {
-        AudioManager.playVoice('voice-ch3');
-      }, 3000);
+      if (window.AudioManager) {
+        AudioManager.play('audio-ch3', { loop: true });
+        // La voz suena 3 segundos después de que empieza el capítulo
+        setTimeout(() => {
+          AudioManager.playVoice('voice-ch3');
+        }, 3000);
+      }
     });
   }
 
@@ -242,12 +318,13 @@ window.Chapters = (() => {
       const stopOcean = Animations.startOcean();
       if (stopOcean) _cleanups.push(stopOcean);
 
-      AudioManager.play('audio-ch4', { loop: true });
-      
-      // La voz suena 3 segundos después de que empieza el capítulo
-      setTimeout(() => {
-        AudioManager.playVoice('voice-ch4');
-      }, 3000);
+      if (window.AudioManager) {
+        AudioManager.play('audio-ch4', { loop: true });
+        // La voz suena 3 segundos después de que empieza el capítulo
+        setTimeout(() => {
+          AudioManager.playVoice('voice-ch4');
+        }, 3000);
+      }
     });
   }
 
@@ -294,7 +371,7 @@ window.Chapters = (() => {
       // ─── LÓGICA DE LA ESCENA FINAL (Estado C y D) ───
       function showHouseAndEpilogue() {
         // Transición de audio y pantallas
-        AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
+        if (window.AudioManager) AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
         timerState.classList.add('hidden');
         arrivedState.classList.add('hidden');
         houseState.classList.remove('hidden');
@@ -309,48 +386,45 @@ window.Chapters = (() => {
               if (floatingNote) {
                 floatingNote.addEventListener('click', () => {
                   
-                  // Detener audio o crossfade si es necesario (ya implementado en tu showHouseAndEpilogue)
-                  //AudioManager.crossfade('audio-ch5-ambient', 'audio-ch5-music');
-
                   // 1. Iniciar captura con html2canvas
-                  html2canvas(floatingNote, {
-                    backgroundColor: null, // Fondo transparente
-                    scale: 3, // Alta calidad
-                    
-                    // ESTA ES LA CLAVE: Modificar el clon antes de capturarlo
-                    onclone: (clonedDoc) => {
-                      // Encontrar la nota dentro del documento clonado
-                      const clonedNote = clonedDoc.getElementById('floating-note');
-                      if (clonedNote) {
-                        // Forzar estilos para la captura perfecta:
-                        // Enderezar, quitar sombras (bordes raros), asegurar opacidad completa
-                        clonedNote.style.cssText += `
-                          transform: none !important;
-                          animation: none !important;
-                          box-shadow: none !important;
-                          opacity: 1 !important;
-                          filter: none !important;
-                          margin: 0 !important;
-                          border-radius: 12px; /* Mantener bordes redondeados limpios */
-                        `;
+                  if(typeof html2canvas !== 'undefined') {
+                    html2canvas(floatingNote, {
+                      backgroundColor: null, // Fondo transparente
+                      scale: 3, // Alta calidad
+                      
+                      // ESTA ES LA CLAVE: Modificar el clon antes de capturarlo
+                      onclone: (clonedDoc) => {
+                        // Encontrar la nota dentro del documento clonado
+                        const clonedNote = clonedDoc.getElementById('floating-note');
+                        if (clonedNote) {
+                          // Forzar estilos para la captura perfecta:
+                          clonedNote.style.cssText += `
+                            transform: none !important;
+                            animation: none !important;
+                            box-shadow: none !important;
+                            opacity: 1 !important;
+                            filter: none !important;
+                            margin: 0 !important;
+                            border-radius: 12px;
+                          `;
+                        }
                       }
-                    }
-                  }).then(canvas => {
-                    // 2. Crear el enlace de descarga
-                    const link = document.createElement('a');
-                    link.download = 'coupon.png'; // CORREGIDO: Nombre exacto
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
+                    }).then(canvas => {
+                      // 2. Crear el enlace de descarga
+                      const link = document.createElement('a');
+                      link.download = 'coupon.png'; 
+                      link.href = canvas.toDataURL('image/png');
+                      link.click();
 
-                    // 3. Ocultar la nota original (la que ve el usuario) con animación
-                    floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
-                    setTimeout(() => {
-                      epilogueState.classList.add('hidden');
-                    }, 800);
-                  }); // <-- Cierra el .then de html2canvas
-
-                }); // <-- Cierra el listener del clic
-              } // <-- Cierra el if
+                      // 3. Ocultar la nota original
+                      floatingNote.style.animation = 'globalFadeOut 0.8s ease forwards';
+                      setTimeout(() => {
+                        epilogueState.classList.add('hidden');
+                      }, 800);
+                    });
+                  }
+                }); 
+              } 
             });
           }
         }, BirthdayConfig.epilogueStarDelay);
@@ -359,40 +433,51 @@ window.Chapters = (() => {
       }
 
       // ─── EVALUACIÓN INICIAL DEL TIEMPO ───
-      const initialRemaining = getRemainingSeconds();
+      const isFreeMode = window.BirthdayConfig && BirthdayConfig.freeMode;
+      let freeModeCounter = 10; // 10 segundos simulados para el Modo Libre
 
-      if (initialRemaining <= 0) {
-        // CASO 1: Entró tarde. Saltar directo a la casa.
-        showHouseAndEpilogue();
-      } else {
-        // CASO 2: Entró a tiempo. Mostrar contador.
-        AudioManager.play('audio-ch5-ambient', { loop: true });
+      // SIEMPRE ponemos el audio ambiente y mostramos el timer de inicio
+      if (window.AudioManager) AudioManager.play('audio-ch5-ambient', { loop: true });
+      timerState.classList.remove('hidden');
+      arrivedState.classList.add('hidden');
+      houseState.classList.add('hidden');
 
-        function tickCountdown() {
-          if (!countdownDisplay) return;
-          
-          let remaining = getRemainingSeconds();
-          countdownDisplay.textContent = BirthdayConfig.formatCountdown(remaining);
-          
-          if (remaining <= 0) {
-            clearInterval(countdownInterval);
+      function tickCountdown() {
+        if (!countdownDisplay) return;
+        
+        let remaining;
+        
+        if (isFreeMode) {
+          remaining = freeModeCounter;
+          freeModeCounter--; // Restamos 1 segundo localmente
+        } else {
+          remaining = getRemainingSeconds();
+        }
+        
+        countdownDisplay.textContent = BirthdayConfig.formatCountdown(Math.max(0, remaining));
+        
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          // Mantenemos el 00:00 un instante para que vea que llegó a cero y no sea brusco
+          setTimeout(() => {
             timerState.classList.add('hidden');
             arrivedState.classList.remove('hidden');
-          }
-        }
-
-        tickCountdown();
-        const countdownInterval = setInterval(tickCountdown, 1000);
-        _cleanups.push(() => clearInterval(countdownInterval));
-
-        // Evento del botón "Ya volví"
-        const arrivedBtn = document.getElementById('arrived-btn');
-        if (arrivedBtn) {
-          arrivedBtn.addEventListener('click', () => {
-            showHouseAndEpilogue();
-          }, { once: true });
+          }, 2000);
         }
       }
+
+      tickCountdown();
+      const countdownInterval = setInterval(tickCountdown, 1000);
+      _cleanups.push(() => clearInterval(countdownInterval));
+
+      // Evento del botón "Ya volví"
+      const arrivedBtn = document.getElementById('arrived-btn');
+      if (arrivedBtn) {
+        arrivedBtn.addEventListener('click', () => {
+          showHouseAndEpilogue();
+        }, { once: true });
+      }
+      
     });
   }
 

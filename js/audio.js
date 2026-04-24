@@ -7,10 +7,6 @@ window.AudioManager = (() => {
   // ▼▼▼ VARIABLES PARA AJUSTAR DURANTE TUS PRUEBAS ▼▼▼
   const CONFIG_VOZ = {
     volumenVoz: 0.9,       
-
-    // Qué tanto baja la música mientras hablas. 
-    // Se multiplica por el masterVolume. 
-    // Ej: 0.20 = baja a un 20%, 0.50 = baja a la mitad, 0 = se silencia.
     reduccionMusica: 0.6  
   };
   // ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲ ▲▲▲
@@ -18,7 +14,6 @@ window.AudioManager = (() => {
   let _current = null;
   let _unlocked = false;
 
-  // ─── IDs de todos los elementos de audio ───
   const ALL_IDS = [
     'audio-ch1', 'audio-ch2', 'audio-ch3',
     'audio-ch4', 'audio-ch5-ambient', 'audio-ch5-music',
@@ -29,14 +24,11 @@ window.AudioManager = (() => {
     return document.getElementById(id);
   }
 
- // ─── Marcar audio como desbloqueado (tras interacción) ───
   function unlock() {
     _unlocked = true;
     ALL_IDS.forEach(id => {
       const el = _getEl(id);
       if (el) {
-        // En iPhone es mejor no darles "play" a todos a la vez
-        // Solo los preparamos bajando el volumen a cero y reseteando
         el.pause();
         el.currentTime = 0;
         el.volume = 0;
@@ -54,14 +46,21 @@ window.AudioManager = (() => {
     _current = null;
   }
 
-// ─── MÚSICA DE FONDO (Mejorada para iPhone) ───
+  // ─── NUEVO: Bajar el volumen suavemente a TODOS los audios (Para transiciones) ───
+  function fadeOutAll(durationMs = 1500) {
+    ALL_IDS.forEach(id => {
+      const el = _getEl(id);
+      if (el && !el.paused) {
+        _fadeOut(el, durationMs);
+      }
+    });
+  }
+
   function play(id, { loop = true, fadeMs = 1000 } = {}) {
     if (!_unlocked) return;
     const el = _getEl(id);
     if (!el) return;
 
-    // DETENCIÓN AGRESIVA: Antes de tocar la nueva, 
-    // nos aseguramos de que TODO lo demás esté muerto.
     ALL_IDS.forEach(otherId => {
        const otherEl = _getEl(otherId);
        if (otherEl && otherId !== id) {
@@ -71,7 +70,7 @@ window.AudioManager = (() => {
     });
 
     if (_current && _current !== el) {
-      _fadeOut(_current, 400); // Fade out rápido de la anterior
+      _fadeOut(_current, 400); 
     }
 
     el.loop = loop;
@@ -80,7 +79,6 @@ window.AudioManager = (() => {
 
     const targetVol = BirthdayConfig.masterVolume || 0.4;
     
-    // Forzamos el play
     const playPromise = el.play();
     if (playPromise !== undefined) {
       playPromise.then(() => {
@@ -94,34 +92,31 @@ window.AudioManager = (() => {
   }
   
   function crossfade(fromId, toId, { fadeMs = 1200 } = {}) {
-  if (!_unlocked) return;
-  const from = _getEl(fromId);
-  const to   = _getEl(toId);
-  const targetVol = BirthdayConfig.masterVolume || 0.4;
+    if (!_unlocked) return;
+    const from = _getEl(fromId);
+    const to   = _getEl(toId);
+    const targetVol = BirthdayConfig.masterVolume || 0.4;
 
-  if (from && !from.paused) _fadeOut(from, fadeMs);
+    if (from && !from.paused) _fadeOut(from, fadeMs);
 
-  if (to) {
-    if (to._fadeTimer) clearInterval(to._fadeTimer); // ← nuevo
-    to.loop = true;
-    to.volume = 0;
-    to.currentTime = 0;
-    to.play().then(() => _fadeIn(to, targetVol, fadeMs)).catch(() => {});
-    _current = to;
+    if (to) {
+      if (to._fadeTimer) clearInterval(to._fadeTimer);
+      to.loop = true;
+      to.volume = 0;
+      to.currentTime = 0;
+      to.play().then(() => _fadeIn(to, targetVol, fadeMs)).catch(() => {});
+      _current = to;
+    }
   }
-}
 
-  // ─── NOTAS DE VOZ (Ducking: Baja la música mientras hablas) ───
   function playVoice(id) {
     if (!_unlocked) return;
     const voiceEl = _getEl(id);
     if (!voiceEl) return;
 
-    // Usar la variable de configuración para el volumen de la voz
     voiceEl.volume = CONFIG_VOZ.volumenVoz;
     voiceEl.currentTime = 0;
     
-    // Bajar la música de fondo según el ratio configurado
     const normalVol = BirthdayConfig.masterVolume || 0.4;
     if (_current && !_current.paused) {
       _current.volume = normalVol * CONFIG_VOZ.reduccionMusica; 
@@ -129,7 +124,6 @@ window.AudioManager = (() => {
 
     voiceEl.play().catch(() => {});
 
-    // Cuando tu nota de voz termina, la música vuelve a subir
     voiceEl.onended = () => {
       if (_current && !_current.paused) {
         _fadeIn(_current, normalVol, 1500); 
@@ -138,36 +132,36 @@ window.AudioManager = (() => {
   }
 
   function _fadeIn(el, targetVolume = 1, durationMs = 1000) {
-  if (el._fadeTimer) clearInterval(el._fadeTimer); // ← cancelar el anterior
-  const steps = 30;
-  const interval = durationMs / steps;
-  const increment = targetVolume / steps;
-  let v = 0;
-  el._fadeTimer = setInterval(() => {
-    v = Math.min(v + increment, targetVolume);
-    el.volume = v;
-    if (v >= targetVolume) clearInterval(el._fadeTimer);
-  }, interval);
-}
+    if (el._fadeTimer) clearInterval(el._fadeTimer);
+    const steps = 30;
+    const interval = durationMs / steps;
+    const increment = targetVolume / steps;
+    let v = 0;
+    el._fadeTimer = setInterval(() => {
+      v = Math.min(v + increment, targetVolume);
+      el.volume = v;
+      if (v >= targetVolume) clearInterval(el._fadeTimer);
+    }, interval);
+  }
 
-function _fadeOut(el, durationMs = 800) {
-  if (!el || el.paused) return;
-  if (el._fadeTimer) clearInterval(el._fadeTimer); // ← cancelar el anterior
-  const startVolume = el.volume > 0 ? el.volume : 0.01;
-  const steps = 20;
-  const interval = durationMs / steps;
-  const decrement = startVolume / steps;
-  let v = startVolume;
-  el._fadeTimer = setInterval(() => {
-    v = Math.max(v - decrement, 0);
-    el.volume = v;
-    if (v <= 0) {
-      clearInterval(el._fadeTimer);
-      el.pause();
-      el.currentTime = 0;
-    }
-  }, interval);
-}
+  function _fadeOut(el, durationMs = 800) {
+    if (!el || el.paused) return;
+    if (el._fadeTimer) clearInterval(el._fadeTimer);
+    const startVolume = el.volume > 0 ? el.volume : 0.01;
+    const steps = 20;
+    const interval = durationMs / steps;
+    const decrement = startVolume / steps;
+    let v = startVolume;
+    el._fadeTimer = setInterval(() => {
+      v = Math.max(v - decrement, 0);
+      el.volume = v;
+      if (v <= 0) {
+        clearInterval(el._fadeTimer);
+        el.pause();
+        el.currentTime = 0;
+      }
+    }, interval);
+  }
 
-  return { unlock, play, stopAll, crossfade, playVoice };
+  return { unlock, play, stopAll, fadeOutAll, crossfade, playVoice };
 })();

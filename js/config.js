@@ -3,6 +3,10 @@
    ═══════════════════════════════════════════════════════════ */
 
 window.BirthdayConfig = {
+  // ─────────────────────────────────────────────────────
+  // MODO LIBRE: true para saltar horarios y mostrar botón "Siguiente"
+  // ─────────────────────────────────────────────────────
+  freeMode: true,
 
   // ─────────────────────────────────────────────────────
   // MODO DEBUG: Poner true para saltar el bloqueo horario
@@ -97,26 +101,25 @@ chapters: [
   // Retorna { chapter, locked: false } o { chapter: nextChapter, locked: true }
   // ─────────────────────────────────────────────────────
 getActiveChapter() {
+    // Si el modo libre está activo, SIEMPRE iniciamos en el Capítulo 1
+    if (this.freeMode) {
+      return { chapter: this.chapters[0], locked: false };
+    }
+
     if (this.debugMode) {
       const ch = this.chapters.find(c => c.id === this.debugForceChapter);
       return { chapter: ch, locked: false };
     }
 
     const now = this.getBoliviaTime();
-
-    // 1. Bloqueo estricto por Fecha (Asegurar que sea el 23)
-    // Extraemos año, mes y día de la fecha objetivo
     const [tYear, tMonth, tDay] = this.targetDate.split('-').map(Number);
     
-    // now.getMonth() devuelve 0 para Enero, así que sumamos 1
     if (now.getFullYear() < tYear || 
        (now.getFullYear() === tYear && (now.getMonth() + 1) < tMonth) ||
        (now.getFullYear() === tYear && (now.getMonth() + 1) === tMonth && now.getDate() < tDay)) {
-      // Es antes del 23 de abril: Todo bloqueado, muestra el Cap 1
       return { chapter: this.chapters[0], locked: true };
     }
 
-    // 2. Bloqueo normal por Hora
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     let active = null;
 
